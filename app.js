@@ -1,0 +1,148 @@
+import { normalizeSerial } from './core.js';
+import { drawQr, canvasPng } from './qr.js';
+import { zipSync } from 'fflate';
+
+const form = document.querySelector('#generator');
+const serialInput = document.querySelector('#serial');
+const generateButton = document.querySelector('#generate');
+const status = document.querySelector('#status');
+const progress = document.querySelector('#progress');
+const results = document.querySelector('#results');
+const cards = document.querySelector('#cards');
+const resultSerial = document.querySelector('#result-serial');
+const downloadAll = document.querySelector('#download-all');
+let worker;
+let deadline;
+let generation = 0;
+let urls = [];
+
+function stopWorker() {
+  worker?.terminate();
+  worker = undefined;
+  clearTimeout(deadline);
+}
+
+function setBusy(busy) {
+  generateButton.disabled = busy;
+  generateButton.textContent = busy ? '正在生成…' : '生成二维码';
+  form.setAttribute('aria-busy', String(busy));
+  progress.hidden = !busy;
+}
+
+function invalidate() {
+  generation++;
+  stopWorker();
+  setBusy(false);
+  results.hidden = true;
+  cards.replaceChildren();
+  downloadAll.removeAttribute('href');
+  downloadAll.removeAttribute('download');
+  for (const url of urls) URL.revokeObjectURL(url);
+  urls = [];
+  status.textContent = '';
+  status.classList.remove('error');
+  serialInput.removeAttribute('aria-invalid');
+}
+
+function fail(message, inputError = false) {
+  invalidate();
+  status.textContent = message;
+  status.classList.add('error');
+  if (inputError) {
+    serialInput.setAttribute('aria-invalid', 'true');
+    serialInput.focus();
+  }
+}
+
+async function render(result, token) {
+  const fragment = document.createDocumentFragment();
+  const files = {};
+  const prepared = [];
+  for (const [index, code] of result.codes.entries()) {
+    const card = document.createElement('article');
+    card.className = 'qr-card';
+    const heading = document.createElement('h3');
+    heading.textContent = code.name;
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', `${code.name}二维码`);
+    drawQr(canvas, code.payload);
+    const blob = await canvasPng(canvas);
+    const filename = `${String(index + 1).padStart(2, '0')}_${code.name.replaceAll(' ', '')}_${result.serial}.png`;
+    files[filename] = new Uint8Array(await blob.arrayBuffer());
+    const link = document.createElement('a');
+    link.className = 'save-link';
+    link.textContent = '保存 PNG';
+    link.download = filename;
+    link.setAttribute('aria-label', `保存${code.name}二维码`);
+    card.append(heading, canvas, link);
+    fragment.append(card);
+    prepared.push({ link, blob });
+  }
+  // The user may edit the serial while asynchronous PNG export is in progress.
+  if (token !== generation) return;
+  const archive = new Blob([zipSync(files, { level: 0 })], { type: 'application/zip' });
+  for (const { link, blob } of prepared) {
+    link.href = URL.createObjectURL(blob);
+    urls.push(link.href);
+  }
+  downloadAll.href = URL.createObjectURL(archive);
+  urls.push(downloadAll.href);
+  downloadAll.download = `K1II_${result.serial}.zip`;
+  cards.replaceChildren(fragment);
+  resultSerial.textContent = result.serial;
+  results.hidden = false;
+  setBusy(false);
+  status.textContent = '4 个二维码已生成';
+}
+
+serialInput.addEventListener('input', invalidate);
+window.addEventListener('pagehide', invalidate);
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  invalidate();
+  let serial;
+  try {
+    serial = normalizeSerial(serialInput.value);
+  } catch (error) {
+    fail(error.message, true);
+    return;
+  }
+  if (!globalThis.crypto?.subtle || !globalThis.Worker) {
+    fail('请用最新版浏览器，通过 HTTPS 链接或本地预览打开网页');
+    return;
+  }
+  const token = generation;
+  setBusy(true);
+  progress.value = 0;
+  status.textContent = '正在生成 0 / 4';
+  try {
+    worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+    deadline = setTimeout(() => {
+      if (token === generation) fail('生成超时，请重试');
+    }, 60000);
+    worker.onerror = event => {
+      event.preventDefault();
+      if (token === generation) fail('生成失败，请刷新页面后重试');
+    };
+    worker.onmessage = async ({ data }) => {
+      if (token !== generation) return;
+      if (data.type === 'progress') {
+        progress.value = data.done;
+        status.textContent = `正在生成 ${data.done} / ${data.total}`;
+      } else if (data.type === 'complete') {
+        stopWorker();
+        try {
+          await render(data.result, token);
+        } catch {
+          if (token === generation) fail('图片生成失败，请重试');
+        }
+      } else if (data.type === 'error') {
+        fail('生成失败，请刷新页面后重试');
+      }
+    };
+    worker.postMessage({ serial });
+  } catch {
+    fail('无法启动生成器，请刷新页面后重试');
+  }
+});
