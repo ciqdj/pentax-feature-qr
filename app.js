@@ -61,6 +61,10 @@ function openQrViewer(code, result) {
 
 new ResizeObserver(fitQrViewer).observe(viewerStage);
 viewerClose.addEventListener('click', closeQrViewer);
+qrViewer.addEventListener('cancel', event => {
+  event.preventDefault();
+  closeQrViewer();
+});
 qrViewer.addEventListener('close', clearQrViewer);
 qrViewer.addEventListener('click', event => {
   if ([qrViewer, viewerStage, viewerHeader].includes(event.target)) closeQrViewer();
