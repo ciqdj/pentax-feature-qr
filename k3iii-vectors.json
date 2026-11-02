@@ -1,0 +1,80 @@
+[
+  {
+    "model": "k3iii",
+    "serial": "1234567",
+    "codes": [
+      {
+        "id": 28,
+        "name": "渐变 ND",
+        "payload": "43e11198220fe7dedd925ee771cbabb8664413b7e098ba248ed32921831eac2c"
+      },
+      {
+        "id": 31,
+        "name": "星点自动对焦",
+        "payload": "c13a576b9586918782466fb70693f1212c1a8d0da7d4467127cd8da7d4af369a"
+      },
+      {
+        "id": 34,
+        "name": "遥控对焦微动",
+        "payload": "7cde30895632fda14f76bb7db6cdd6cd39064704d5c45f048b2a6faf5d7f977f"
+      },
+      {
+        "id": 37,
+        "name": "星空影像处理",
+        "payload": "f212ad5fd23dc69deefb532017176a10df9a6d94a4ee7ece706941ec5d76aa66"
+      }
+    ]
+  },
+  {
+    "model": "k3iii",
+    "serial": "0012345",
+    "codes": [
+      {
+        "id": 28,
+        "name": "渐变 ND",
+        "payload": "950139aefdeaceab303b3cd94efe6c525c6d868569c659eba1c7b7911fe35a6f"
+      },
+      {
+        "id": 31,
+        "name": "星点自动对焦",
+        "payload": "fd80ac345bddf4323bf2e43738b98ca11d7752d590371abb96090339bc576460"
+      },
+      {
+        "id": 34,
+        "name": "遥控对焦微动",
+        "payload": "f5f69e80f85003bf1e52dce03d0597f329d5f07df439d751051f9ad9d2de9361"
+      },
+      {
+        "id": 37,
+        "name": "星空影像处理",
+        "payload": "2f36d1a23b52b04fe529b93622b50d8d037efecf1a12c7cb0510b403c49b5d11"
+      }
+    ]
+  },
+  {
+    "model": "k3iii",
+    "serial": "12345678901234567890",
+    "codes": [
+      {
+        "id": 28,
+        "name": "渐变 ND",
+        "payload": "5fed6ccd22260a43dba165111f27a7d0c6b9a81c8776a70d4b1670c8623b3a4a"
+      },
+      {
+        "id": 31,
+        "name": "星点自动对焦",
+        "payload": "9ca005088b5785f0c80cf41dacf2ad6dde81900ea3c35f0ef6bb06bee0a483ba"
+      },
+      {
+        "id": 34,
+        "name": "遥控对焦微动",
+        "payload": "ecb2457b2e8b9ea155b845996515039d8748e3eeb77e3233010190d2fccffa4b"
+      },
+      {
+        "id": 37,
+        "name": "星空影像处理",
+        "payload": "9b7feabb2406fd825e6a6207e1229046438b2c93108b1501382afd6d8dc8cac4"
+      }
+    ]
+  }
+]

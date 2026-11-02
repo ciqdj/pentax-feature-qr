@@ -4,6 +4,9 @@ import { zipSync } from 'fflate';
 
 const form = document.querySelector('#generator');
 const serialInput = document.querySelector('#serial');
+const modelInput = document.querySelector('#model');
+const modelNote = document.querySelector('#model-note');
+const resultModel = document.querySelector('#result-model');
 const generateButton = document.querySelector('#generate');
 const status = document.querySelector('#status');
 const progress = document.querySelector('#progress');
@@ -68,7 +71,7 @@ async function render(result, token) {
     canvas.setAttribute('aria-label', `${code.name}二维码`);
     drawQr(canvas, code.payload);
     const blob = await canvasPng(canvas);
-    const filename = `${String(index + 1).padStart(2, '0')}_${code.name.replaceAll(' ', '')}_${result.serial}.png`;
+    const filename = `${result.filePrefix}_${String(index + 1).padStart(2, '0')}_${code.name.replaceAll(' ', '')}_${result.serial}.png`;
     files[filename] = new Uint8Array(await blob.arrayBuffer());
     const link = document.createElement('a');
     link.className = 'save-link';
@@ -88,8 +91,9 @@ async function render(result, token) {
   }
   downloadAll.href = URL.createObjectURL(archive);
   urls.push(downloadAll.href);
-  downloadAll.download = `K1II_${result.serial}.zip`;
+  downloadAll.download = `${result.filePrefix}_${result.serial}.zip`;
   cards.replaceChildren(fragment);
+  resultModel.textContent = result.modelName;
   resultSerial.textContent = result.serial;
   results.hidden = false;
   setBusy(false);
@@ -97,6 +101,12 @@ async function render(result, token) {
 }
 
 serialInput.addEventListener('input', invalidate);
+modelInput.addEventListener('change', () => {
+  invalidate();
+  modelNote.textContent = modelInput.value === 'k3iii'
+    ? 'K-3 III：已完成离线校验，尚待真机扫码确认。'
+    : '请选择机身对应的机型。';
+});
 window.addEventListener('pagehide', invalidate);
 form.addEventListener('submit', event => {
   event.preventDefault();
@@ -141,7 +151,7 @@ form.addEventListener('submit', event => {
         fail('生成失败，请刷新页面后重试');
       }
     };
-    worker.postMessage({ serial });
+    worker.postMessage({ serial, modelId: modelInput.value });
   } catch {
     fail('无法启动生成器，请刷新页面后重试');
   }
