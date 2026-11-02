@@ -160,3 +160,54 @@ test('worker loading failure returns to a retryable state', async ({ page }) => 
   await page.getByRole('button', { name: '生成二维码' }).click();
   await expect(page.locator('#status')).toHaveText('4 个二维码已生成');
 });
+
+test('QR viewer fills the viewport, decodes every feature, and closes with blank space, Escape or the close button', async ({ page }, testInfo) => {
+  await page.goto('./');
+  await page.getByLabel('相机型号', { exact: true }).selectOption('k1');
+  await page.getByLabel('相机序列号', { exact: true }).fill('0012345');
+  await page.getByRole('button', { name: '生成二维码', exact: true }).click();
+  await expect(page.locator('#status')).toHaveText('4 个二维码已生成');
+  const expected = k1Vectors.find(v => v.serial === '0012345');
+  const viewer = page.locator('#qr-viewer');
+  const largeQr = page.locator('#qr-viewer-canvas');
+  for (let i = 0; i < names.length; i++) {
+    const trigger = page.getByRole('button', { name: `放大${names[i]}二维码`, exact: true });
+    const small = await trigger.boundingBox();
+    await trigger.click();
+    await expect(viewer).toBeVisible();
+    await expect(viewer).toHaveAccessibleName(names[i]);
+    await expect(page.locator('#qr-viewer-meta')).toHaveText('K-1 · 序列号 0012345');
+    const size = await largeQr.boundingBox();
+    expect(size.width).toBeGreaterThan(small.width);
+    expect(size.width).toBe(size.height);
+    const available = await page.locator('#qr-viewer-stage').evaluate(el => Math.min(el.clientWidth, el.clientHeight));
+    expect(available - size.width).toBeLessThan(1);
+    expect(size.x).toBeGreaterThanOrEqual(0);
+    expect(size.y).toBeGreaterThanOrEqual(0);
+    expect(size.x + size.width).toBeLessThanOrEqual(page.viewportSize().width);
+    expect(size.y + size.height).toBeLessThanOrEqual(page.viewportSize().height);
+    // Decode the actual on-screen, enlarged QR, including device pixel ratio.
+    const png = PNG.sync.read(await largeQr.screenshot());
+    const decoded = jsQR(new Uint8ClampedArray(png.data), png.width, png.height);
+    expect(decoded?.data).toBe(expected.codes[i].payload);
+    await largeQr.click();
+    await expect(viewer).toBeVisible();
+    if (i === 0) {
+      await page.screenshot({ path: testInfo.outputPath('enlarged-qr.png') });
+      await viewer.click({ position: { x: 2, y: 2 } });
+    } else if (i === 1) {
+      await page.keyboard.press('Escape');
+    } else {
+      if (i === 3) {
+        await page.setViewportSize({ width: 844, height: 390 });
+        await expect.poll(async () => (await largeQr.boundingBox()).height).toBeLessThan(350);
+        const landscape = PNG.sync.read(await largeQr.screenshot());
+        expect(jsQR(new Uint8ClampedArray(landscape.data), landscape.width, landscape.height)?.data).toBe(expected.codes[i].payload);
+      }
+      await page.getByRole('button', { name: '关闭大图', exact: true }).click();
+    }
+    await expect(viewer).toBeHidden();
+    await expect(trigger).toBeFocused();
+    expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).not.toBe('hidden');
+  }
+});

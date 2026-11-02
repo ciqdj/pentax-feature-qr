@@ -36,6 +36,20 @@ h2 { margin: 0; color: #64746a; font-size: 13px; font-weight: 400; }
 .qr-card { overflow: hidden; border: 1px solid #e0e5de; border-radius: 14px; background: #fff; text-align: center; padding: 19px 12px 12px; }
 h3 { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
 canvas { display: block; width: 100%; height: auto; aspect-ratio: 1; image-rendering: pixelated; }
+.scan-hint { margin: -4px 0 16px; color: #64746a; font-size: 12px; }
+.qr-preview, .qr-preview:hover { display: block; width: 100%; height: auto; padding: 0; border-radius: 0; background: #fff; cursor: zoom-in; }
+.qr-viewer-open { overflow: hidden; }
+.qr-viewer { position: fixed; inset: 0; width: 100%; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 12px; padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); border: 0; background: #fff; color: #1d2926; overflow: hidden; }
+.qr-viewer[open] { display: flex; flex-direction: column; gap: 8px; }
+.qr-viewer::backdrop { background: #fff; }
+.qr-viewer-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; flex-shrink: 0; }
+.qr-viewer-label { min-width: 0; }
+.qr-viewer-label h2 { color: #1d2926; font-size: 16px; font-weight: 600; }
+.qr-viewer-label p { margin: 4px 0 0; color: #64746a; font-size: 12px; overflow-wrap: anywhere; }
+.qr-viewer-close { width: auto; height: 44px; padding: 0 16px; border: 1px solid #cbd4cb; background: #f4f5f1; color: #235c45; }
+.qr-viewer-close:hover { background: #e3e9e0; }
+.qr-viewer-stage { display: grid; place-items: center; flex: 1; min-height: 0; min-width: 0; }
+#qr-viewer-canvas { width: 45px; height: 45px; max-width: 100%; max-height: 100%; flex-shrink: 0; }
 .save-link { display: block; color: #4d6559; padding: 12px 4px 9px; font-size: 12px; text-decoration: none; }
 .save-link:hover, .download-all:hover { color: #122e21; text-decoration: underline; }
 footer { margin-top: 28px; color: #738076; font-size: 11px; text-align: center; }
