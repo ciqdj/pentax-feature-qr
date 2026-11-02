@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { generateCodes, normalizeSerial, FEATURES } from './core.js';
+import { generateCodes, normalizeSerial, FEATURES, getModel } from './core.js';
 
 const vectors = JSON.parse(await readFile(new URL('./vectors.json', import.meta.url), 'utf8'));
 
@@ -32,3 +32,24 @@ for (const vector of vectors) {
     assert.deepEqual(progress, [[1, 4], [2, 4], [3, 4], [4, 4]]);
   });
 }
+
+const k3Vectors = JSON.parse(await readFile(new URL('./k3iii-vectors.json', import.meta.url), 'utf8'));
+for (const vector of k3Vectors) {
+  test(`K-3 III matches original ARM and SHA-256: ${vector.serial}`, async () => {
+    const result = await generateCodes(vector.serial, () => {}, 'k3iii');
+    assert.equal(result.modelId, 'k3iii');
+    assert.equal(result.filePrefix, 'K3III');
+    assert.deepEqual(result.codes, vector.codes);
+    assert.deepEqual(result.codes.map(c => c.id), [28, 31, 34, 37]);
+  });
+}
+
+test('unknown models fail closed and model selection changes every payload', async () => {
+  for (const id of ['k3ii', 'monochrome', '__proto__', 'constructor', null]) {
+    assert.throws(() => getModel(id), /相机型号/);
+  }
+  await assert.rejects(generateCodes('1234567', () => {}, 'unknown'), /相机型号/);
+  const original = vectors.find(v => v.serial === '1234567');
+  const k3 = k3Vectors.find(v => v.serial === '1234567');
+  assert.ok(k3.codes.every((c, i) => c.payload !== original.codes[i].payload));
+});
