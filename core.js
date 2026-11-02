@@ -1,4 +1,4 @@
-// K-1 II 2.51 and K-3 III 2.20; independently verified firmware inputs.
+// K-1, K-1 II and K-3 III; independently verified firmware inputs.
 export const FEATURES = Object.freeze([
   Object.freeze({ id: 2, name: '渐变 ND' }),
   Object.freeze({ id: 11, name: '星点自动对焦' }),
@@ -9,6 +9,7 @@ export const FEATURES = Object.freeze([
 const encoder = new TextEncoder();
 export const MODELS = Object.freeze({
   k1ii: Object.freeze({ name: 'K-1 II', modelWord: 78400, filePrefix: 'K1II', features: FEATURES }),
+  k1: Object.freeze({ name: 'K-1', modelWord: 77970, filePrefix: 'K1', features: FEATURES }),
   k3iii: Object.freeze({ name: 'K-3 III', modelWord: 78420, filePrefix: 'K3III',
     features: Object.freeze(FEATURES.map((feature, index) => Object.freeze({
       id: [28, 31, 34, 37][index], name: feature.name,
