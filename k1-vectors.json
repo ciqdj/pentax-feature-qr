@@ -1,0 +1,80 @@
+[
+  {
+    "model": "k1",
+    "serial": "1234567",
+    "codes": [
+      {
+        "id": 2,
+        "name": "渐变 ND",
+        "payload": "2dc37209a5aa646ae002f448d239f2f3bf12898984efaf93d96920cc73a109fd"
+      },
+      {
+        "id": 11,
+        "name": "星点自动对焦",
+        "payload": "e9ff5c3f136d72a535b1f01a85e66596eaec2d1eeff4a558580830fd9bc5f05f"
+      },
+      {
+        "id": 14,
+        "name": "遥控对焦微动",
+        "payload": "ac6717720c92513179347e512a7bf9ac725aaba009da29682be8dc481107164a"
+      },
+      {
+        "id": 17,
+        "name": "星空影像处理",
+        "payload": "6f374bd9544dfa38a239d5d8636b365cacc9c50ed0938ac86b86ca3107b9eb23"
+      }
+    ]
+  },
+  {
+    "model": "k1",
+    "serial": "0012345",
+    "codes": [
+      {
+        "id": 2,
+        "name": "渐变 ND",
+        "payload": "2b2085e26f5e83a209aad82c7ec565e2b5685ba3e4f378d4d4dc37c87149695e"
+      },
+      {
+        "id": 11,
+        "name": "星点自动对焦",
+        "payload": "5d1ead7cb66a3d1f8a59ae8cbb41a1f1a0235eb5732f7445b527ad907d198eb4"
+      },
+      {
+        "id": 14,
+        "name": "遥控对焦微动",
+        "payload": "0367b6d23896c04b6c0ca8d9ab7aeabf368f372f9b20efb85d0fce8cce645f62"
+      },
+      {
+        "id": 17,
+        "name": "星空影像处理",
+        "payload": "854368834445fe8ba920c390b0f7224cccc99df7e911b401b9abcc9d7b4dc911"
+      }
+    ]
+  },
+  {
+    "model": "k1",
+    "serial": "12345678901234567890",
+    "codes": [
+      {
+        "id": 2,
+        "name": "渐变 ND",
+        "payload": "49643ec4c4239d21201aec69dfefd8c42e0cc6d5d0d57ff7e32fd4b4676e69c7"
+      },
+      {
+        "id": 11,
+        "name": "星点自动对焦",
+        "payload": "5193ba6df3c66ee8d038a6c7c4c04fe7716c202973dd47b2b392322cd345c676"
+      },
+      {
+        "id": 14,
+        "name": "遥控对焦微动",
+        "payload": "e9e2ba7e29020c1c9aaa5be7a4a920c0137aabfc625bc33488a436cbbbb7a73c"
+      },
+      {
+        "id": 17,
+        "name": "星空影像处理",
+        "payload": "a3edf1a6d6c881a27e5cc4f34fe74c21275760b0287aab8c9b0b459bdb77c11e"
+      }
+    ]
+  }
+]
