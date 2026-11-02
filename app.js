@@ -14,10 +14,57 @@ const results = document.querySelector('#results');
 const cards = document.querySelector('#cards');
 const resultSerial = document.querySelector('#result-serial');
 const downloadAll = document.querySelector('#download-all');
+const qrViewer = document.querySelector('#qr-viewer');
+const viewerHeader = document.querySelector('#qr-viewer-header');
+const viewerTitle = document.querySelector('#qr-viewer-title');
+const viewerMeta = document.querySelector('#qr-viewer-meta');
+const viewerStage = document.querySelector('#qr-viewer-stage');
+const viewerCanvas = document.querySelector('#qr-viewer-canvas');
+const viewerClose = document.querySelector('#qr-viewer-close');
 let worker;
 let deadline;
 let generation = 0;
 let urls = [];
+
+function fitQrViewer() {
+  if (!qrViewer.open) return;
+  const available = Math.min(viewerStage.clientWidth, viewerStage.clientHeight);
+  // Keep the complete square and quiet zone, using all available screen space.
+  // Pixelated rendering preserves the QR's hard edges when scaling the canvas.
+  const side = Math.max(1, Math.floor(available));
+  viewerCanvas.style.width = `${side}px`;
+  viewerCanvas.style.height = `${side}px`;
+}
+
+function clearQrViewer() {
+  if (qrViewer.open) return;
+  document.body.classList.remove('qr-viewer-open');
+  viewerCanvas.getContext('2d').clearRect(0, 0, viewerCanvas.width, viewerCanvas.height);
+  viewerTitle.textContent = '';
+  viewerMeta.textContent = '';
+}
+
+function closeQrViewer() {
+  if (qrViewer.open) qrViewer.close();
+  clearQrViewer();
+}
+
+function openQrViewer(code, result) {
+  viewerTitle.textContent = code.name;
+  viewerMeta.textContent = `${result.modelName} · 序列号 ${result.serial}`;
+  viewerCanvas.setAttribute('aria-label', `${code.name}二维码大图`);
+  drawQr(viewerCanvas, code.payload);
+  document.body.classList.add('qr-viewer-open');
+  qrViewer.showModal();
+  fitQrViewer();
+}
+
+new ResizeObserver(fitQrViewer).observe(viewerStage);
+viewerClose.addEventListener('click', closeQrViewer);
+qrViewer.addEventListener('close', clearQrViewer);
+qrViewer.addEventListener('click', event => {
+  if ([qrViewer, viewerStage, viewerHeader].includes(event.target)) closeQrViewer();
+});
 
 function stopWorker() {
   worker?.terminate();
@@ -34,6 +81,7 @@ function setBusy(busy) {
 
 function invalidate() {
   generation++;
+  closeQrViewer();
   stopWorker();
   setBusy(false);
   results.hidden = true;
@@ -70,6 +118,14 @@ async function render(result, token) {
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', `${code.name}二维码`);
     drawQr(canvas, code.payload);
+    const preview = document.createElement('button');
+    preview.type = 'button';
+    preview.className = 'qr-preview';
+    preview.setAttribute('aria-label', `放大${code.name}二维码`);
+    preview.setAttribute('aria-haspopup', 'dialog');
+    preview.title = '点击放大';
+    preview.append(canvas);
+    preview.addEventListener('click', () => openQrViewer(code, result));
     const blob = await canvasPng(canvas);
     const filename = `${result.filePrefix}_${String(index + 1).padStart(2, '0')}_${code.name.replaceAll(' ', '')}_${result.serial}.png`;
     files[filename] = new Uint8Array(await blob.arrayBuffer());
@@ -78,7 +134,7 @@ async function render(result, token) {
     link.textContent = '保存 PNG';
     link.download = filename;
     link.setAttribute('aria-label', `保存${code.name}二维码`);
-    card.append(heading, canvas, link);
+    card.append(heading, preview, link);
     fragment.append(card);
     prepared.push({ link, blob });
   }
