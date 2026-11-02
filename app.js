@@ -1,4 +1,4 @@
-import { normalizeSerial } from './core.js';
+import { normalizeSerial, getModel } from './core.js';
 import { drawQr, canvasPng } from './qr.js';
 import { zipSync } from 'fflate';
 
@@ -103,9 +103,9 @@ async function render(result, token) {
 serialInput.addEventListener('input', invalidate);
 modelInput.addEventListener('change', () => {
   invalidate();
-  modelNote.textContent = modelInput.value === 'k3iii'
-    ? 'K-3 III：已完成离线校验，尚待真机扫码确认。'
-    : '请选择机身对应的机型。';
+  modelNote.textContent = modelInput.value === 'k1ii'
+    ? '请选择机身对应的机型。'
+    : `${getModel(modelInput.value).name}：已完成离线校验，尚待真机扫码确认。`;
 });
 window.addEventListener('pagehide', invalidate);
 form.addEventListener('submit', event => {

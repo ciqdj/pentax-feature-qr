@@ -44,6 +44,18 @@ for (const vector of k3Vectors) {
   });
 }
 
+const k1Vectors = JSON.parse(await readFile(new URL('./k1-vectors.json', import.meta.url), 'utf8'));
+for (const vector of k1Vectors) {
+  test(`K-1 matches original ARM and SHA-256: ${vector.serial}`, async () => {
+    const result = await generateCodes(vector.serial, () => {}, 'k1');
+    assert.equal(result.modelId, 'k1');
+    assert.equal(result.modelName, 'K-1');
+    assert.equal(result.filePrefix, 'K1');
+    assert.deepEqual(result.codes, vector.codes);
+    assert.deepEqual(result.codes.map(c => c.id), [2, 11, 14, 17]);
+  });
+}
+
 test('unknown models fail closed and model selection changes every payload', async () => {
   for (const id of ['k3ii', 'monochrome', '__proto__', 'constructor', null]) {
     assert.throws(() => getModel(id), /相机型号/);
@@ -52,4 +64,7 @@ test('unknown models fail closed and model selection changes every payload', asy
   const original = vectors.find(v => v.serial === '1234567');
   const k3 = k3Vectors.find(v => v.serial === '1234567');
   assert.ok(k3.codes.every((c, i) => c.payload !== original.codes[i].payload));
+  const k1 = k1Vectors.find(v => v.serial === '1234567');
+  assert.deepEqual(k1.codes.map(c => c.id), original.codes.map(c => c.id));
+  assert.ok(k1.codes.every((c, i) => c.payload !== original.codes[i].payload));
 });
