@@ -45,10 +45,23 @@
         <h2><span id="result-model"></span> · 序列号 <span id="result-serial"></span></h2>
         <a id="download-all" class="download-all">下载全部 <span class="zip-label">ZIP</span></a>
       </div>
+      <p class="scan-hint">点击二维码放大扫描，点击空白处退出。</p>
       <div id="cards" class="cards"></div>
     </section>
     <noscript>请启用 JavaScript 后使用。</noscript>
     <footer>支持 PENTAX K-1 / K-1 II / K-3 III（非 Monochrome）<span aria-hidden="true"> · </span>非官方工具</footer>
   </main>
+  <dialog id="qr-viewer" class="qr-viewer" aria-labelledby="qr-viewer-title" aria-describedby="qr-viewer-meta">
+    <header id="qr-viewer-header" class="qr-viewer-header">
+      <div class="qr-viewer-label">
+        <h2 id="qr-viewer-title"></h2>
+        <p id="qr-viewer-meta"></p>
+      </div>
+      <button id="qr-viewer-close" class="qr-viewer-close" type="button" aria-label="关闭大图" autofocus>关闭 ×</button>
+    </header>
+    <div id="qr-viewer-stage" class="qr-viewer-stage">
+      <canvas id="qr-viewer-canvas" role="img" aria-label="二维码大图" width="540" height="540"></canvas>
+    </div>
+  </dialog>
 </body>
 </html>
