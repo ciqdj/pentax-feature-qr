@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; worker-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <meta name="description" content="PENTAX K-1 II / K-3 III 四个功能二维码，在浏览器本地生成。">
-  <title>PENTAX 功能二维码 · K-1 II / K-3 III</title>
+  <meta name="description" content="PENTAX K-1 / K-1 II / K-3 III 四个功能二维码，在浏览器本地生成。">
+  <title>PENTAX 功能二维码 · K-1 / K-1 II / K-3 III</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./assets/app.js"></script>
@@ -15,7 +15,7 @@
 <body>
   <main>
     <header class="intro">
-      <div class="eyebrow"><span class="camera-mark" aria-hidden="true"></span>PENTAX · K-1 II / K-3 III</div>
+      <div class="eyebrow"><span class="camera-mark" aria-hidden="true"></span>PENTAX · K-1 / K-1 II / K-3 III</div>
       <h1>功能二维码</h1>
       <p>一个序列号，四个功能。</p>
     </header>
@@ -24,6 +24,7 @@
         <label for="model">相机型号</label>
         <select id="model" aria-describedby="model-note">
           <option value="k1ii">PENTAX K-1 II</option>
+          <option value="k1">PENTAX K-1</option>
           <option value="k3iii">PENTAX K-3 III</option>
         </select>
         <p id="model-note" class="model-note" aria-live="polite">请选择机身对应的机型。</p>
@@ -47,7 +48,7 @@
       <div id="cards" class="cards"></div>
     </section>
     <noscript>请启用 JavaScript 后使用。</noscript>
-    <footer>支持 PENTAX K-1 II / K-3 III（非 Monochrome）<span aria-hidden="true"> · </span>非官方工具</footer>
+    <footer>支持 PENTAX K-1 / K-1 II / K-3 III（非 Monochrome）<span aria-hidden="true"> · </span>非官方工具</footer>
   </main>
 </body>
 </html>
