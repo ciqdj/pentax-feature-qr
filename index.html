@@ -6,8 +6,8 @@
   <meta name="color-scheme" content="light">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; worker-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <meta name="description" content="PENTAX K-1 / K-1 II / K-3 III 四个功能二维码，在浏览器本地生成。">
-  <title>PENTAX 功能二维码 · K-1 / K-1 II / K-3 III</title>
+  <meta name="description" content="为支持的宾得机型在本地生成功能二维码，点击放大即可扫描。">
+  <title>PENTAX 功能二维码</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./assets/app.js"></script>
@@ -15,9 +15,9 @@
 <body>
   <main>
     <header class="intro">
-      <div class="eyebrow"><span class="camera-mark" aria-hidden="true"></span>PENTAX · K-1 / K-1 II / K-3 III</div>
+      <div class="eyebrow"><span class="camera-mark" aria-hidden="true"></span>PENTAX</div>
       <h1>功能二维码</h1>
-      <p>一个序列号，四个功能。</p>
+      <p>支持 K-1、K-1 II、K-3 III 彩色版及 Monochrome 黑白版。选择机型，输入序列号，点击生成。</p>
     </header>
     <section class="input-panel" aria-label="生成二维码">
       <form id="generator" novalidate aria-busy="false">
@@ -25,7 +25,8 @@
         <select id="model" aria-describedby="model-note">
           <option value="k1ii">PENTAX K-1 II</option>
           <option value="k1">PENTAX K-1</option>
-          <option value="k3iii">PENTAX K-3 III</option>
+          <option value="k3iii">PENTAX K-3 III（彩色版）</option>
+          <option value="k3iiim">PENTAX K-3 III Monochrome（黑白版）</option>
         </select>
         <p id="model-note" class="model-note" aria-live="polite">请选择机身对应的机型。</p>
         <label for="serial">相机序列号</label>
@@ -39,6 +40,14 @@
           <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
         </div>
       </form>
+      <form id="model-request" class="model-request" aria-label="机型反馈">
+        <label for="requested-model">列表里没有你的机型？</label>
+        <div class="request-row">
+          <input id="requested-model" required maxlength="48" pattern=".*\S.*" type="text" autocomplete="off" placeholder="填写机型，例如 K-70" aria-describedby="request-note">
+          <button type="submit">去 GitHub 反馈 <span aria-hidden="true">↗</span></button>
+        </div>
+        <p id="request-note">只填机型。将在新标签页打开草稿，登录 GitHub 后可确认提交。</p>
+      </form>
     </section>
     <section id="results" aria-label="生成结果" hidden>
       <div class="results-header">
@@ -49,7 +58,7 @@
       <div id="cards" class="cards"></div>
     </section>
     <noscript>请启用 JavaScript 后使用。</noscript>
-    <footer>支持 PENTAX K-1 / K-1 II / K-3 III（非 Monochrome）<span aria-hidden="true"> · </span>非官方工具</footer>
+    <footer>PENTAX 功能二维码<span aria-hidden="true"> · </span>非官方工具</footer>
   </main>
   <dialog id="qr-viewer" class="qr-viewer" aria-labelledby="qr-viewer-title" aria-describedby="qr-viewer-meta">
     <header id="qr-viewer-header" class="qr-viewer-header">
