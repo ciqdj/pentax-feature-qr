@@ -80,3 +80,13 @@ test('unknown models fail closed and model selection changes every payload', asy
   assert.deepEqual(k1.codes.map(c => c.id), original.codes.map(c => c.id));
   assert.ok(k1.codes.every((c, i) => c.payload !== original.codes[i].payload));
 });
+
+test('checked firmware with no verified QR features never hashes a serial or emits progress', async () => {
+  for (const [id,version] of [['k70','1.16'],['k5iis','1.07']]) {
+    const model = getModel(id);
+    assert.equal(model.firmware,version);
+    assert.deepEqual(model.features,[]);
+    assert.equal(model.modelWord,undefined);
+    await assert.rejects(generateCodes('0012345', () => assert.fail('unexpected progress'), id), /暂无已验证/);
+  }
+});
