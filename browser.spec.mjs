@@ -152,6 +152,62 @@ test('model requests open a draft with only the requested model', async ({ page,
   await expect(page.locator('#results')).toBeHidden();
 });
 
+test('zero-feature models clear finished and pending codes without requesting a serial', async ({ page }) => {
+  await page.goto('./');
+  const model = page.getByLabel('相机型号', {exact:true});
+  const serial = page.getByLabel('相机序列号', {exact:true});
+  const generate = page.locator('#generate');
+  await serial.fill('0012345');
+  await generate.click();
+  await expect(page.locator('#cards canvas')).toHaveCount(4);
+  for (const [id,label,version] of [['k70','K-70','1.16'],['k5iis','K-5 IIs','1.07']]) {
+    await model.selectOption(id);
+    await expect(page.locator('#model-note')).toHaveText(`${label}（固件 ${version}）：0 项已验证的功能二维码，无需输入序列号。`);
+    await expect(serial).toBeHidden();
+    await expect(generate).toBeDisabled();
+    await expect(page.locator('#cards canvas')).toHaveCount(0);
+    await expect(page.locator('#download-all')).not.toHaveAttribute('href');
+    await expect(page.locator('#requested-model')).toBeVisible();
+    await model.selectOption('k1ii');
+    await expect(serial).toBeVisible();
+    await expect(generate).toBeEnabled();
+    await generate.click();
+  }
+  await expect(page.locator('#cards canvas')).toHaveCount(4);
+});
+
+test('one and two verified features produce exactly that many labelled PNGs and ZIP entries', async ({ page, context }) => {
+  // Test-only catalog entries reuse known K-1 vectors. No synthetic camera is published.
+  await context.route(/\/assets\/models\.js$/, route => route.fulfill({
+    contentType: 'text/javascript', body: `
+      import {MODELS as original} from './models.js?unmodified';
+      export {FEATURES} from './models.js?unmodified';
+      const partial = (n,features) => ({...original.k1,name:'Fixture '+n,filePrefix:'TEST'+n,features});
+      export const MODELS = {...original, test1:partial(1,[original.k1.features[2]]),
+        test2:partial(2,[original.k1.features[1],original.k1.features[3]])};
+    `,
+  }));
+  await page.goto('./');
+  const expected=k1Vectors.find(v=>v.serial==='0012345');
+  for (const [id,indices] of [['test1',[2]],['test2',[1,3]]]) {
+    const count=indices.length;
+    await page.getByLabel('相机型号',{exact:true}).selectOption(id);
+    await expect(page.locator('#progress')).toHaveAttribute('max',String(count));
+    await page.getByLabel('相机序列号',{exact:true}).fill('0012345');
+    await page.locator('#generate').click();
+    await expect(page.locator('#status')).toHaveText(`${count} 个二维码已生成`);
+    await expect(page.locator('#cards canvas')).toHaveCount(count);
+    await expect(page.locator('#cards h3')).toHaveText(indices.map(i=>expected.codes[i].name));
+    const zip=await downloadBytes(page,page.locator('#download-all'));
+    const entries=Object.entries(unzipSync(zip.data));
+    expect(entries).toHaveLength(count);
+    for (const [i,[name,png]] of entries.entries()) {
+      expect(name).toContain(expected.codes[indices[i]].name.replaceAll(' ',''));
+      checkPng(png,expected.codes[indices[i]].payload);
+    }
+  }
+});
+
 test('invalid serial and editing during generation cannot leave stale results', async ({ page }) => {
   await page.goto('./');
   const input = page.getByLabel('相机序列号', { exact: true });
