@@ -9,7 +9,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4173/k1ii-qr/',
+    baseURL: 'http://127.0.0.1:4173/pentax-feature-qr/',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'node serve.mjs',
-    url: 'http://127.0.0.1:4173/k1ii-qr/',
+    url: 'http://127.0.0.1:4173/pentax-feature-qr/',
     reuseExistingServer: false,
     timeout: 10000,
   },
