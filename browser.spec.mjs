@@ -178,7 +178,7 @@ test('zero-feature models clear finished and pending codes without requesting a 
 
 test('one and two verified features produce exactly that many labelled PNGs and ZIP entries', async ({ page, context }) => {
   // Test-only catalog entries reuse known K-1 vectors. No synthetic camera is published.
-  await context.route(/\/assets\/models\.js$/, route => route.fulfill({
+  await context.route(/\/assets\/models\.js\?v=[a-f0-9]{16}$/, route => route.fulfill({
     contentType: 'text/javascript', body: `
       import {MODELS as original} from './models.js?unmodified';
       export {FEATURES} from './models.js?unmodified';
@@ -231,15 +231,33 @@ test('invalid serial and editing during generation cannot leave stale results', 
   checkPng(result.data, vector('0012345').codes[0].payload);
 });
 
+test('returning visitors bypass stale unversioned copies of the app, worker and catalog', async ({ page, context }) => {
+  const stale = [];
+  await context.route(/\/assets\/(app|models|worker)\.js$/, route => {
+    stale.push(route.request().url());
+    return route.fulfill({contentType:'text/javascript',body:'/* cached previous release */'});
+  });
+  await page.goto('./');
+  const model=page.getByLabel('相机型号',{exact:true});
+  await model.selectOption('k70');
+  await expect(page.locator('#model-note')).toContainText('0 项');
+  await model.selectOption('k1');
+  await page.getByLabel('相机序列号',{exact:true}).fill('0012345');
+  await page.locator('#generate').click();
+  await expect(page.locator('#cards canvas')).toHaveCount(4);
+  expect(stale).toHaveLength(0);
+});
+
 test('worker loading failure returns to a retryable state', async ({ page }) => {
-  await page.route('**/assets/worker.js', route => route.abort());
+  const workerUrl=/\/assets\/worker\.js\?v=[a-f0-9]{16}$/;
+  await page.route(workerUrl, route => route.abort());
   await page.goto('./');
   await page.getByLabel('相机序列号', { exact: true }).fill('1234567');
   await page.getByRole('button', { name: '生成二维码' }).click();
   await expect(page.locator('#status')).toHaveText('生成失败，请刷新页面后重试');
   await expect(page.getByRole('button', { name: '生成二维码' })).toBeEnabled();
   await expect(page.locator('#results')).toBeHidden();
-  await page.unroute('**/assets/worker.js');
+  await page.unroute(workerUrl);
   await page.getByRole('button', { name: '生成二维码' }).click();
   await expect(page.locator('#status')).toHaveText('4 个二维码已生成');
 });
