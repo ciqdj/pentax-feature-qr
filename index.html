@@ -17,33 +17,33 @@
     <header class="intro">
       <div class="eyebrow"><span class="camera-mark" aria-hidden="true"></span>PENTAX</div>
       <h1>功能二维码</h1>
-      <p>支持 K-1、K-1 II、K-3 III 彩色版及 Monochrome 黑白版。选择机型，输入序列号，点击生成。</p>
+      <p>选择机型查看可用功能。若有二维码可生成，输入机身序列号即可。</p>
     </header>
     <section class="input-panel" aria-label="生成二维码">
       <form id="generator" novalidate aria-busy="false">
         <label for="model">相机型号</label>
         <select id="model" aria-describedby="model-note">
-          <option value="k1ii">PENTAX K-1 II</option>
-          <option value="k1">PENTAX K-1</option>
-          <option value="k3iii">PENTAX K-3 III（彩色版）</option>
-          <option value="k3iiim">PENTAX K-3 III Monochrome（黑白版）</option>
+          <optgroup id="can-generate" label="可生成二维码"></optgroup>
+          <optgroup id="checked-models" label="已检查 · 暂无可生成的二维码"></optgroup>
         </select>
         <p id="model-note" class="model-note" aria-live="polite">请选择机身对应的机型。</p>
+        <div id="serial-controls">
         <label for="serial">相机序列号</label>
         <div class="input-row">
           <input id="serial" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" autocapitalize="off" placeholder="输入机身序列号" aria-describedby="status privacy">
           <button id="generate" type="submit">生成二维码<span aria-hidden="true"> ↗</span></button>
         </div>
-        <progress id="progress" max="4" value="0" aria-label="生成进度" hidden></progress>
+        <progress id="progress" value="0" aria-label="生成进度" hidden></progress>
         <div class="input-notes">
           <p id="privacy">本地计算 · 序列号不上传</p>
           <p id="status" role="status" aria-live="polite" aria-atomic="true"></p>
+        </div>
         </div>
       </form>
       <form id="model-request" class="model-request" aria-label="机型反馈">
         <label for="requested-model">列表里没有你的机型？</label>
         <div class="request-row">
-          <input id="requested-model" required maxlength="48" pattern=".*\S.*" type="text" autocomplete="off" placeholder="填写机型，例如 K-70" aria-describedby="request-note">
+          <input id="requested-model" required maxlength="48" pattern=".*\S.*" type="text" autocomplete="off" placeholder="填写机型，例如 KP" aria-describedby="request-note">
           <button type="submit">去 GitHub 反馈 <span aria-hidden="true">↗</span></button>
         </div>
         <p id="request-note">只填机型。将在新标签页打开草稿，登录 GitHub 后可确认提交。</p>

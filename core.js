@@ -1,20 +1,6 @@
-// Model words and feature IDs from the corresponding firmware.
-export const FEATURES = Object.freeze([
-  Object.freeze({ id: 2, name: '渐变 ND' }),
-  Object.freeze({ id: 11, name: '星点自动对焦' }),
-  Object.freeze({ id: 14, name: '遥控对焦微动' }),
-  Object.freeze({ id: 17, name: '星空影像处理' }),
-]);
-
-const K3_FEATURES = Object.freeze([28, 31, 34, 37].map((id, i) =>
-  Object.freeze({ id, name: FEATURES[i].name })));
+import { MODELS } from './models.js';
+export { MODELS, FEATURES } from './models.js';
 const encoder = new TextEncoder();
-export const MODELS = Object.freeze({
-  k1ii: Object.freeze({ name: 'K-1 II', modelWord: 78400, filePrefix: 'K1II', features: FEATURES }),
-  k1: Object.freeze({ name: 'K-1', modelWord: 77970, filePrefix: 'K1', features: FEATURES }),
-  k3iii: Object.freeze({ name: 'K-3 III', modelWord: 78420, filePrefix: 'K3III', features: K3_FEATURES }),
-  k3iiim: Object.freeze({ name: 'K-3 III Monochrome', modelWord: 78550, filePrefix: 'K3IIIM', features: K3_FEATURES }),
-});
 
 export function getModel(id) {
   if (!Object.hasOwn(MODELS, id)) throw new Error('请选择支持的相机型号');
@@ -54,8 +40,9 @@ async function sha256(bytes) {
 }
 
 export async function generateCodes(input, onProgress = () => {}, modelId = 'k1ii') {
-  const serial = normalizeSerial(input);
   const model = getModel(modelId);
+  if (!model.features.length) throw new Error('该机型暂无已验证的功能二维码');
+  const serial = normalizeSerial(input);
   if (!globalThis.crypto?.subtle) {
     throw new Error('请使用 HTTPS 链接或本地预览打开网页');
   }

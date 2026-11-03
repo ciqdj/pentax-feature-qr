@@ -1,4 +1,4 @@
-import { normalizeSerial, getModel } from './core.js';
+import { normalizeSerial, getModel, MODELS } from './core.js';
 import { drawQr, canvasPng } from './qr.js';
 import { zipSync } from 'fflate';
 
@@ -16,6 +16,11 @@ requestForm.addEventListener('submit', event => {
 });
 const serialInput = document.querySelector('#serial');
 const modelInput = document.querySelector('#model');
+const serialControls = document.querySelector('#serial-controls');
+for (const [id, model] of Object.entries(MODELS)) {
+  const group = modelInput.querySelector(model.features.length ? '#can-generate' : '#checked-models');
+  group.append(new Option('PENTAX ' + (model.label ?? model.name), id));
+}
 const modelNote = document.querySelector('#model-note');
 const resultModel = document.querySelector('#result-model');
 const generateButton = document.querySelector('#generate');
@@ -88,7 +93,7 @@ function stopWorker() {
 }
 
 function setBusy(busy) {
-  generateButton.disabled = busy;
+  generateButton.disabled = busy || !getModel(modelInput.value).features.length;
   generateButton.textContent = busy ? '正在生成…' : '生成二维码';
   form.setAttribute('aria-busy', String(busy));
   progress.hidden = !busy;
@@ -168,20 +173,33 @@ async function render(result, token) {
   resultSerial.textContent = result.serial;
   results.hidden = false;
   setBusy(false);
-  status.textContent = '4 个二维码已生成';
+  status.textContent = `${result.codes.length} 个二维码已生成`;
 }
 
 serialInput.addEventListener('input', invalidate);
-modelInput.addEventListener('change', () => {
+function showSelectedModel() {
   invalidate();
-  modelNote.textContent = modelInput.value === 'k1ii'
-    ? '请选择机身对应的机型。'
-    : `${getModel(modelInput.value).name}：已完成离线校验，尚待真机扫码确认。`;
-});
+  const model = getModel(modelInput.value);
+  const count = model.features.length;
+  serialControls.hidden = !count;
+  serialInput.disabled = !count;
+  if (!count) {
+    modelNote.textContent = `${model.name}（固件 ${model.firmware}）：0 项已验证的功能二维码，无需输入序列号。`;
+    return;
+  }
+  progress.max = count;
+  modelNote.textContent = modelInput.value === 'k1ii' ? `可生成 ${count} 个功能二维码。`
+    : `${model.name}：可生成 ${count} 个功能二维码，已完成离线校验，尚待真机扫码确认。`;
+}
+modelInput.addEventListener('change', showSelectedModel);
+window.addEventListener('pageshow', showSelectedModel);
+showSelectedModel();
 window.addEventListener('pagehide', invalidate);
 form.addEventListener('submit', event => {
   event.preventDefault();
   invalidate();
+  const count = getModel(modelInput.value).features.length;
+  if (!count) return;
   let serial;
   try {
     serial = normalizeSerial(serialInput.value);
@@ -196,7 +214,7 @@ form.addEventListener('submit', event => {
   const token = generation;
   setBusy(true);
   progress.value = 0;
-  status.textContent = '正在生成 0 / 4';
+  status.textContent = `正在生成 0 / ${count}`;
   try {
     worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
     deadline = setTimeout(() => {
