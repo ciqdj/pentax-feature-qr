@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 const root = fileURLToPath(new URL('.', import.meta.url));
 const site = resolve(root, 'site');
 await mkdir(resolve(site, 'assets'), { recursive: true });
+await copyFile(resolve(root, 'models.js'), resolve(site, 'assets/models.js'));
 for (const name of ['index.html', 'styles.css', 'favicon.svg']) {
   await copyFile(resolve(root, name), resolve(site, name));
 }
@@ -14,6 +15,7 @@ await build({
   entryPoints: { app: 'app.js', worker: 'worker.js' },
   outdir: 'site/assets',
   bundle: true,
+  external: ['./models.js'], // The UI and its worker read the same model catalog.
   format: 'esm',
   platform: 'browser',
   target: ['es2020'],
