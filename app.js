@@ -3,6 +3,17 @@ import { drawQr, canvasPng } from './qr.js';
 import { zipSync } from 'fflate';
 
 const form = document.querySelector('#generator');
+const requestForm = document.querySelector('#model-request');
+const requestedModel = document.querySelector('#requested-model');
+requestForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const model = requestedModel.value.trim();
+  if (!model) return;
+  const draft = new URL('https://github.com/nahtaki/pentax-feature-qr/issues/new');
+  draft.searchParams.set('title', `机型请求：${model}`);
+  draft.searchParams.set('body', `希望支持的机型：${model}`);
+  window.open(draft.href, '_blank', 'noopener,noreferrer');
+});
 const serialInput = document.querySelector('#serial');
 const modelInput = document.querySelector('#model');
 const modelNote = document.querySelector('#model-note');

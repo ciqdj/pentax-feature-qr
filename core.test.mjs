@@ -56,6 +56,18 @@ for (const vector of k1Vectors) {
   });
 }
 
+const monoVectors = JSON.parse(await readFile(new URL('./k3iiim-vectors.json', import.meta.url), 'utf8'));
+for (const vector of monoVectors) {
+  test(`Monochrome agrees with the native model branch and differs from color: ${vector.serial}`, async () => {
+    const result = await generateCodes(vector.serial, () => {}, 'k3iiim');
+    assert.equal(getModel('k3iiim').modelWord, 78550);
+    assert.equal(result.filePrefix, 'K3IIIM');
+    assert.deepEqual(result.codes, vector.codes);
+    const color = k3Vectors.find(v => v.serial === vector.serial);
+    assert.ok(result.codes.every((c,i) => c.id === color.codes[i].id && c.payload !== color.codes[i].payload));
+  });
+}
+
 test('unknown models fail closed and model selection changes every payload', async () => {
   for (const id of ['k3ii', 'monochrome', '__proto__', 'constructor', null]) {
     assert.throws(() => getModel(id), /相机型号/);

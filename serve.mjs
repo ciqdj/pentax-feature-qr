@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('./site/', import.meta.url));
 const port = Number(process.env.PORT || 4173);
-const prefix = '/k1ii-qr/'; // Exercise GitHub Pages project-relative URLs locally.
+const prefix = '/pentax-feature-qr/'; // Exercise GitHub Pages project-relative URLs locally.
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8' };
 const server = createServer(async (request, response) => {
   try {

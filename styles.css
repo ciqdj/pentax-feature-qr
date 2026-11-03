@@ -26,6 +26,14 @@ a:focus-visible, button:focus-visible { outline: 3px solid #81b69e; outline-offs
 .input-notes { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin-top: 13px; min-height: 18px; }
 .input-notes p { margin: 0; color: #64746a; font-size: 12px; line-height: 1.5; }
 .input-notes .error { color: #a3312c; }
+.model-request { border-top: 1px solid #e0e5de; margin-top: 16px; padding-top: 14px; }
+.model-request label { margin: 0 0 6px; }
+.request-row { display: flex; align-items: center; gap: 8px; max-width: 320px; }
+.request-row input { height: 38px; padding: 0 10px; font-size: 16px; }
+.request-row input::placeholder { font-size: 13px; }
+.request-row button { height: 38px; width: auto; padding: 0 12px; background: #e9f1eb; color: #235c45; font-size: 13px; }
+.request-row button:hover { background: #dbe9de; }
+.model-request p { margin: 6px 0 0; color: #64746a; font-size: 12px; line-height: 1.5; }
 progress { display: block; height: 5px; width: 100%; margin-top: 15px; accent-color: #235c45; border: 0; border-radius: 9px; }
 .results-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin: 30px 0 16px; }
 h2 { margin: 0; color: #64746a; font-size: 13px; font-weight: 400; }

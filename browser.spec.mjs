@@ -9,6 +9,7 @@ const vector = serial => vectors.find(item => item.serial === serial);
 const names = ['渐变 ND', '星点自动对焦', '遥控对焦微动', '星空影像处理'];
 const k3Vectors = JSON.parse(await readFile(new URL('./k3iii-vectors.json', import.meta.url), 'utf8'));
 const k1Vectors = JSON.parse(await readFile(new URL('./k1-vectors.json', import.meta.url), 'utf8'));
+const monoVectors = JSON.parse(await readFile(new URL('./k3iiim-vectors.json', import.meta.url), 'utf8'));
 
 async function downloadBytes(page, locator) {
   const pending = page.waitForEvent('download');
@@ -40,6 +41,7 @@ function checkPng(data, payload) {
 
 for (const { id, name, prefix, vectors: modelVectors } of [
   { id: 'k3iii', name: 'K-3 III', prefix: 'K3III', vectors: k3Vectors },
+  { id: 'k3iiim', name: 'K-3 III Monochrome', prefix: 'K3IIIM', vectors: monoVectors },
   { id: 'k1', name: 'K-1', prefix: 'K1', vectors: k1Vectors },
 ]) {
 test(`${name} PNGs and ZIP match native firmware; model switches clear pending and completed results`, async ({ page }) => {
@@ -110,7 +112,7 @@ test('four independently decoded PNGs, ZIP, local calculation, and responsive la
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
-  expect(page.url()).toBe('http://127.0.0.1:4173/k1ii-qr/');
+  expect(new URL(page.url()).pathname).toBe('/pentax-feature-qr/');
   expect(requests.every(url => new URL(url).origin === 'http://127.0.0.1:4173')).toBe(true);
   expect(requests.some(url => url.includes('1234567'))).toBe(false);
   expect(errors).toEqual([]);
@@ -123,6 +125,31 @@ test('four independently decoded PNGs, ZIP, local calculation, and responsive la
   await expect(page.locator('#result-serial')).toHaveText('0012345');
   const leadingZeroQr = await downloadBytes(page, page.getByRole('link', { name: '保存渐变 ND二维码', exact: true }));
   checkPng(leadingZeroQr.data, vector('0012345').codes[0].payload);
+});
+
+test('model requests open a draft with only the requested model', async ({ page, context }) => {
+  const drafts = [];
+  await context.route('https://github.com/**', async route => {
+    drafts.push(new URL(route.request().url()));
+    await route.fulfill({ contentType: 'text/html', body: '<title>Draft</title>' });
+  });
+  await page.goto('./');
+  await page.getByLabel('相机序列号', { exact: true }).fill('0012345');
+  const model = page.getByLabel('列表里没有你的机型？');
+  await model.fill('   ');
+  await page.getByRole('button', { name: '去 GitHub 反馈' }).click();
+  expect(await model.evaluate(el => el.validity.valid)).toBe(false);
+  expect(drafts).toHaveLength(0);
+  await model.fill('  K-70 & KP  ');
+  const popup = context.waitForEvent('page');
+  await model.press('Enter');
+  const draft = await popup;
+  await draft.waitForLoadState('domcontentloaded');
+  expect(drafts).toHaveLength(1);
+  expect(drafts[0].pathname).toBe('/nahtaki/pentax-feature-qr/issues/new');
+  expect([...drafts[0].searchParams]).toEqual([['title','机型请求：K-70 & KP'], ['body','希望支持的机型：K-70 & KP']]);
+  expect(drafts[0].href).not.toContain('0012345');
+  await expect(page.locator('#results')).toBeHidden();
 });
 
 test('invalid serial and editing during generation cannot leave stale results', async ({ page }) => {
