@@ -18,7 +18,7 @@ jobs:
         uses: aormsby/Fork-Sync-With-Upstream-Action@v3.4.1
         with:
           target_sync_branch: main
-          upstream_sync_repo: zhaoo/m10v
+          upstream_sync_repo: nahtaki/pentax-feature-qr
           upstream_sync_branch: main
           target_repo_token: ${{ secrets.GITHUB_TOKEN }}
           git_config_user: "github-actions[bot]"
